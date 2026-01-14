@@ -131,6 +131,8 @@ def main():
     st.write('')
     st.write('')
 
+    # KPI's
+    
     col1, col2, col3, col4, col5 = st.columns(5, gap='small', vertical_alignment='top')
 
     with col1:
@@ -156,6 +158,8 @@ def main():
 
     st.divider()
 
+
+    # Gráficos e Análises
 
     receita = df.groupby('Ano_Mes')['Receita por produtos (BRL)'].sum().round(2).reset_index()
 
@@ -201,6 +205,8 @@ def main():
     st.divider()
 
 
+    # Ranking de Produtos e Sabores
+
     produtos_ranking = df.groupby('Título do anúncio')['Receita por produtos (BRL)'].sum().round(2).sort_values(ascending = False).head(10)
     produto_min = produtos_ranking.min()
     produto_max = produtos_ranking.max()
@@ -229,7 +235,11 @@ def main():
             }
         )
 
+
     st.divider()
+
+    
+    # Análise por Estado
 
     col1, col2 = st.columns(2)
 
@@ -247,7 +257,11 @@ def main():
         fig.update_yaxes(categoryorder = 'total ascending')
         st.plotly_chart(fig, height = 700)
 
+
     st.divider()
+
+    
+    # Tabela de Dados
 
     st.markdown('#### Tabela de Dados')
     st.dataframe(df)
