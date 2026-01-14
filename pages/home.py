@@ -258,14 +258,5 @@ def main():
         st.plotly_chart(fig, height = 700)
 
 
-    st.divider()
-
-    
-    # Tabela de Dados
-
-    st.markdown('#### Tabela de Dados')
-    st.dataframe(df)
-
-
 if __name__ == '__main__':
     main()
