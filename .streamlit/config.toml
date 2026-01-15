@@ -1,0 +1,15 @@
+[theme]
+
+# Cores primárias (botões, links, etc.)
+
+base="light" 
+primaryColor = "#2d3277" 
+
+# Cores de fundo (página, barras laterais)
+
+backgroundColor = "#FFFFFF" # Ex: Branco
+secondaryBackgroundColor = "#F0F2F6" # Ex: Cinza claro
+
+# Cores de texto
+
+textColor = "#333333" # Ex: Preto
