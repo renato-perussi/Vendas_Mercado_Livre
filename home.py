@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import datetime as dt
 import plotly.express as px
+import locale
+
+# Functions
 
 def alterando_tipo(df, colunas, tipo):
 
@@ -26,28 +29,34 @@ def numeros_absolutos(df, colunas):
     for coluna in colunas:
         df[coluna] = df[coluna].abs()
 
+
+def alterando_moeda_local(value):
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+    return locale.currency(value, grouping=True)
+    
+
 @st.cache_data
 def etl(caminho_arquivo):
 
     df = pd.read_csv(caminho_arquivo)
 
-    #Colunas para alteração de Tipo.
+    # Colunas para alteração de Tipo.
 
     colunas_datas = ['Data da venda', 'Data a caminho completa', 'Data de entrega completa']
     colunas_int = ['Unidades', 'Reclamação encerrada']
-    colunas_strings = ['N.º de venda', 'CEP']
+    colunas_strings = ['N.º de venda']
     alterando_tipo(df, colunas_datas, tipo='datetime')
     alterando_tipo(df, colunas_strings, tipo='str')
     alterando_tipo(df, colunas_int, tipo='int')
 
 
-    #Convertendo valores negativos em absolutos.
+    # Convertendo valores negativos em absolutos.
 
     colunas_absolutas = ['Tarifa de venda e impostos', 'Tarifas de envio', 'Cancelamentos e reembolsos (BRL)']
     numeros_absolutos(df, colunas_absolutas)
 
 
-    #Criando colunas temporais para análise
+    # Criando colunas temporais para análise
 
     data_base = df['Data da venda']
     df['Ano_Mes'] = data_base.dt.to_period('M')
@@ -76,7 +85,7 @@ def etl(caminho_arquivo):
     df['Data da venda'] = df['Data da venda'].dt.date   # Convertendo a coluna Data de datetime para date
 
 
-    #Convertendo colunas temporais para Strings
+    # Convertendo colunas temporais para Strings
 
     colunas_strings = 'Ano_Mes Ano Mes Dia Hora Minuto Dia_Semana Trimestre Dia_Nome Mes_Nome'.split()
     alterando_tipo(df, colunas=colunas_strings, tipo='str') # Alterando o Tipo para String.
@@ -89,17 +98,19 @@ def etl(caminho_arquivo):
     return df
 
 
-def main():
+# Main
+
+if __name__ == '__main__':
 
     # ETL
 
-    caminho_arquivo = '../datasets/vendas_mercado_livre_2023.csv'
+    caminho_arquivo = 'datasets/vendas_mercado_livre_2023.csv'
     df = etl(caminho_arquivo)
 
 
     # Streamlit
 
-    # Set page config
+    # Page config
 
     st.set_page_config(
         page_title='Dashboard_Mercado_Livre',
@@ -107,7 +118,9 @@ def main():
     )
 
 
-    # Start Sidebar
+    # Sidebar
+
+    st.sidebar.title('Dashboard - Vendas Mercado Livre')
 
     st.sidebar.header('Filtros:')
 
@@ -116,28 +129,41 @@ def main():
     data_inicial = st.sidebar.date_input('Data Inicial:', data_min)
     data_final = st.sidebar.date_input('Data Final:', data_max)
 
+    ads = df['Venda por publicidade'].unique().tolist()
+    ads_selecionados = st.sidebar.multiselect('Venda por publicidade:', ads, default=ads)
+
+    estados = df['Estado'].unique().tolist()
+    estados_selecionados = st.sidebar.multiselect('Estados:', estados, default=estados)
+
+    produtos = df['Título do anúncio'].unique().tolist()
+    produtos_selecionados = st.sidebar.multiselect('Produtos:', produtos, default=produtos)
+
+    sabor = df['Variação'].unique().tolist()
+    sabor_selecionados = st.sidebar.multiselect('Sabores:', sabor, default=sabor)
+    
     st.sidebar.divider()
 
-    check_box = st.sidebar.checkbox('Publicidade / Orgânico')
+    st.sidebar.markdown('Developed by Renato Perussi')
 
-    # Filtered DataFrame
-    df = df[(df['Data da venda'] >= data_inicial) & (df['Data da venda'] <= data_final)]
+    # Data Frame filtrado
+
+    df = df[(df['Data da venda'] >= data_inicial) & (df['Data da venda'] <= data_final) & (df['Estado'].isin(estados_selecionados)) & (df['Título do anúncio'].isin(produtos_selecionados)) & (df['Variação'].isin(sabor_selecionados)) & (df['Venda por publicidade'].isin(ads_selecionados))]
 
 
-    # Starts Main Page
+    # Pagina principal
 
-    st.image(image='../images/mercado-livre-logo-8.png', width=250)
+    st.image(image='images/mercado-livre-logo-8.png', width=250)
 
     st.write('')
     st.write('')
 
-    # KPI's
+    # Métricas principais
     
     col1, col2, col3, col4, col5 = st.columns(5, gap='small', vertical_alignment='top')
 
     with col1:
         receita_total = df['Receita por produtos (BRL)'].sum().round(2)
-        st.metric('Receita Total:', value = f'R$ {receita_total}')
+        st.metric('Receita Total:', value = f'{alterando_moeda_local(receita_total)}')
 
     with col2:
         pedido_total = df['N.º de venda'].nunique()
@@ -145,15 +171,14 @@ def main():
 
     with col3:
         ticket_medio = round(receita_total / pedido_total, 2)
-        st.metric('Ticket Médio:', value = f'R$ {ticket_medio}')
-
+        st.metric('Ticket Médio:', value = f'{alterando_moeda_local(ticket_medio)}')
     with col4:
         receita_ads = df[df['Venda por publicidade'] == 'Sim']['Receita por produtos (BRL)'].sum().round(2)
-        st.metric('Receita Ads:', value = f'R$ {receita_ads}')
+        st.metric('Receita Ads:', value = f'{alterando_moeda_local(receita_ads)}')
 
     with col5:
         receita_organico = df[df['Venda por publicidade'] == 'Não']['Receita por produtos (BRL)'].sum().round(2)
-        st.metric('Receita Orgânico:', value = f'R$ {receita_organico}')
+        st.metric('Receita Orgânico:', value = f'{alterando_moeda_local(receita_organico)}')
 
 
     st.divider()
@@ -163,49 +188,31 @@ def main():
 
     receita = df.groupby('Ano_Mes')['Receita por produtos (BRL)'].sum().round(2).reset_index()
 
-    fig = px.line(data_frame = receita, x = 'Ano_Mes', y = 'Receita por produtos (BRL)', title= 'Evolução da Receita Mensal', markers = 'o', hover_name = 'Ano_Mes')
+    st.markdown('### Evolução das Vendas')
+
+    fig = px.line(data_frame = receita, x = 'Ano_Mes', y = 'Receita por produtos (BRL)', title= 'Evolução da Receita Mensal', markers = 'o', labels={'Ano_Mes': 'Ano e Mês', 'Receita por produtos (BRL)': 'Vendas (R$)'})
+
     st.plotly_chart(fig)
 
-    if check_box:
-        fig = px.histogram(data_frame = df, x = 'Ano_Mes', y = 'Receita por produtos (BRL)', title = 'Receita Ads/Orgânico ao Mês', color = 'Venda por publicidade', hover_name = 'Ano_Mes', barmode = 'group')
-        st.plotly_chart(fig)
 
+    st.markdown('### Sazonalidade')
 
     col1, col2 = st.columns(2)
 
     with col1:
         receita_dia = df.groupby('Dia_Semana')['Receita por produtos (BRL)'].sum().round(2).reset_index()
-        fig = px.bar(data_frame = receita_dia, x = 'Dia_Semana', y = 'Receita por produtos (BRL)', title='Receita por Dia da Semana (Sazonalidade)', subtitle='A Semana começa na Segunda-Feira = 0', hover_name='Dia_Semana')
+        fig = px.bar(data_frame = receita_dia, x = 'Dia_Semana', y = 'Receita por produtos (BRL)', title='Receita por Dia da Semana', subtitle='A Semana começa na Segunda-Feira = 0', labels={'Dia_Semana': 'Dia da Semana', 'Receita por produtos (BRL)': 'Vendas (R$)'})
         st.plotly_chart(fig)
 
     with col2:
         receita_hora = df.groupby('Hora')['Receita por produtos (BRL)'].sum().round(2).reset_index()
-        fig = px.bar(data_frame = receita_hora, x = 'Hora', y = 'Receita por produtos (BRL)', title = 'Receita por Hora do Dia (Sazonalidade)', hover_name = 'Hora')
+        fig = px.bar(data_frame = receita_hora, x = 'Hora', y = 'Receita por produtos (BRL)', title = 'Receita por Hora do Dia', labels={'Hora': 'Hora do Dia', 'Receita por produtos (BRL)': 'Vendas (R$)'})
         st.plotly_chart(fig)
 
-    if check_box:
-        with col1:
-            fig = px.histogram(data_frame = df, x = 'Dia_Semana', y = 'Receita por produtos (BRL)', title='Receita Ads/Orgânico por Dia da Semana', color = 'Venda por publicidade', hover_name='Dia_Semana', barmode='group')
-            fig.update_traces(hovertemplate = None)
-            fig.update_layout(hovermode = 'x unified')
-            st.plotly_chart(fig)
-        
-        with col2:
-            fig = px.histogram(data_frame = df, x = 'Hora', y = 'Receita por produtos (BRL)', title = 'Receita Ads/Orgânico por Hora', color = 'Venda por publicidade', hover_name = 'Hora', barmode = 'group', nbins = 24)
-            fig.update_traces(hovertemplate = None)
-            fig.update_layout(hovermode = 'x unified')
-            st.plotly_chart(fig)
 
+    # Tabelas
 
-    tempo_medio_pedido = df.groupby('Ano_Mes')['Dias_Delta_Total'].mean().round(2).reset_index()
-    fig = px.line(data_frame=tempo_medio_pedido, x = 'Ano_Mes', y = 'Dias_Delta_Total', title='Tempo Médio de Entrega do Pedido (Dias) ao Mês', markers='o', hover_name='Ano_Mes')
-    st.plotly_chart(fig)
-
-
-    st.divider()
-
-
-    # Ranking de Produtos e Sabores
+    st.markdown('### Vendas por Produto')
 
     produtos_ranking = df.groupby('Título do anúncio')['Receita por produtos (BRL)'].sum().round(2).sort_values(ascending = False).head(10)
     produto_min = produtos_ranking.min()
@@ -235,28 +242,22 @@ def main():
             }
         )
 
-
-    st.divider()
-
     
-    # Análise por Estado
+    # Análises por estado
+
+    st.markdown('### Vendas por Localidade')
 
     col1, col2 = st.columns(2)
 
     with col1:
         receita_estados = df.groupby('Estado')['Receita por produtos (BRL)'].sum().round(2).reset_index().sort_values('Receita por produtos (BRL)')
-        fig = px.bar(data_frame = receita_estados, x = 'Receita por produtos (BRL)', y = 'Estado', title = 'Receita por Estado', hover_name = 'Estado')
+        fig = px.bar(data_frame = receita_estados, x = 'Receita por produtos (BRL)', y = 'Estado', title = 'Receita por Estado', labels={'Receita por produtos (BRL)': 'Vendas (R$)', 'Estado': 'Estado'})
         st.plotly_chart(fig)
 
     with col2:
-        fig = px.pie(data_frame = receita_estados, values = 'Receita por produtos (BRL)', hole = 0.4, title = 'Proporção da Receita por Estado (%)', hover_name = 'Estado', names = 'Estado')
+        fig = px.pie(data_frame = receita_estados, values = 'Receita por produtos (BRL)', hole = 0.4, title = 'Proporção da Receita por Estado (%)',names = 'Estado')
         st.plotly_chart(fig)
 
-    if check_box:
-        fig = px.histogram(data_frame = df, x = 'Receita por produtos (BRL)', y = 'Estado', color = 'Venda por publicidade', title = 'Receita por Estado Ads/ Orgânico', barmode = 'group')
-        fig.update_yaxes(categoryorder = 'total ascending')
-        st.plotly_chart(fig, height = 700)
 
-
-if __name__ == '__main__':
-    main()
+    st.markdown('### Dataset Completo')
+    st.dataframe(df)
