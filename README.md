@@ -37,7 +37,7 @@ sazonalidade e análise geográfica de vendas.
 
 ## Requisitos
 
-- Python 3.8+
+- Python 3.12+
 - Bibliotecas listadas em `requirements.txt`
 
 ## Instalação
