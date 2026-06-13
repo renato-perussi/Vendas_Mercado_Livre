@@ -123,6 +123,7 @@ def exibir_geografia(df: pd.DataFrame) -> None:
             labels={COLUNA_RECEITA: "Receita (R$)", "Estado": "Estado"},
         )
         fig.update_traces(marker_color=graficos.COR_PRIMARIA, marker_line_width=0)
+        fig.update_yaxes(tickprefix="")
         st.plotly_chart(graficos.aplicar_layout(fig, altura=380), use_container_width=True)
 
     with col2:
