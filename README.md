@@ -1,4 +1,4 @@
-# Mercado Livre Sales Dashboard
+# Dashboard de Vendas — Mercado Livre
 
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.32%2B-FF4B4B)
@@ -7,69 +7,69 @@
 ![Pytest](https://img.shields.io/badge/tests-pytest-green)
 ![Ruff](https://img.shields.io/badge/lint-ruff-black)
 
-Interactive Streamlit dashboard for Mercado Livre sales analysis: revenue KPIs, time trend, seasonality, product rankings and geographic breakdown with sidebar filters.
+Dashboard interativo em Streamlit para análise de vendas do Mercado Livre: KPIs de receita, evolução temporal, sazonalidade, ranking de produtos e distribuição geográfica, com filtros na barra lateral.
 
-## Screenshots
+## Capturas de Tela
 
 <div align="center">
-  <img src="docs/screenshots/ML_01.png" alt="Dashboard overview with KPIs" width="100%">
-  <p><em>Overview with KPIs and sales trend.</em></p>
+  <img src="docs/screenshots/ML_01.png" alt="Visão geral do dashboard com KPIs" width="100%">
+  <p><em>Visão geral com KPIs e evolução das vendas.</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <img src="docs/screenshots/ML_02.png" alt="Seasonality and rankings" width="100%">
-  <p><em>Seasonality and product rankings.</em></p>
+  <img src="docs/screenshots/ML_02.png" alt="Sazonalidade e rankings" width="100%">
+  <p><em>Sazonalidade e ranking de produtos.</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <img src="docs/screenshots/ML_03.png" alt="Geography and dataset" width="100%">
-  <p><em>Geography and full dataset view.</em></p>
+  <img src="docs/screenshots/ML_03.png" alt="Geografia e dados" width="100%">
+  <p><em>Distribuição geográfica e visão completa dos dados.</em></p>
 </div>
 
-## Features
+## Funcionalidades
 
-- Headline KPIs: total revenue, orders, average ticket, ads and organic revenue
-- Monthly sales trend (smoothed line chart)
-- Seasonality by weekday and hour
-- Product and flavor rankings with progress bars
-- Geography by state (bar + donut)
-- Interactive filters: date range, ads channel, state, product, flavor
-- Full dataset table
+- KPIs principais: receita total, pedidos, ticket médio, receita de anúncios e receita orgânica
+- Evolução mensal das vendas (gráfico de linha suavizada)
+- Sazonalidade por dia da semana e hora do dia
+- Ranking de produtos e sabores com barras de progresso
+- Análise geográfica por estado (barras + donut)
+- Filtros interativos: período, canal de publicidade, estado, produto e sabor
+- Tabela completa dos dados
 
-## Tech Stack
+## Tecnologias
 
 - Python 3.12+
 - Streamlit, Pandas, Plotly, NumPy, PyArrow, Pillow
-- Pytest, Ruff, Coverage (dev)
+- Pytest, Ruff, Coverage (desenvolvimento)
 
-## Project Structure
+## Estrutura do Projeto
 
 ```text
 .
-├── app.py                    # Thin Streamlit entrypoint
-├── pyproject.toml            # Ruff + Pytest + Coverage config
-├── requirements.txt          # Runtime deps (minimal, >=)
-├── requirements-dev.txt      # Dev deps (pytest, ruff, coverage)
-├── .streamlit/config.toml    # Theme
-├── data/sales_2023.csv       # Example dataset (small, tracked)
-├── assets/logo.png           # Runtime logo
-├── docs/screenshots/         # README images
-├── sales_dashboard/          # Application package
+├── app.py                    # Ponto de entrada do Streamlit (orquestração)
+├── pyproject.toml            # Configuração do Ruff + Pytest + Coverage
+├── requirements.txt          # Dependências de produção (mínimas, >=)
+├── requirements-dev.txt      # Dependências de dev (pytest, ruff, coverage)
+├── .streamlit/config.toml    # Tema da aplicação
+├── data/sales_2023.csv       # Base de exemplo (pequena, versionada)
+├── assets/logo.png           # Logo usado em tempo de execução
+├── docs/screenshots/         # Imagens do README
+├── sales_dashboard/          # Pacote da aplicação
 │   ├── __init__.py
-│   ├── constants.py          # Paths, column keys, parameters
-│   ├── etl.py                # Load, type coercion, temporal columns
-│   ├── formatting.py         # Currency formatting
-│   ├── metrics.py            # Business metrics
-│   ├── aggregations.py       # Chart aggregations
-│   ├── filters.py            # Filter logic + FilterSelection
-│   ├── charts.py             # Plotly theme and layout
-│   ├── styles.py             # CSS injection and hero
-│   └── components.py         # Streamlit view components
-└── tests/                    # Pytest suite
+│   ├── constants.py          # Caminhos, chaves de colunas e parâmetros
+│   ├── etl.py                # Carga, conversão de tipos e colunas temporais
+│   ├── formatting.py         # Formatação de moeda
+│   ├── metrics.py            # Métricas de negócio
+│   ├── aggregations.py       # Agregações para os gráficos
+│   ├── filters.py            # Lógica de filtros + FilterSelection
+│   ├── charts.py             # Tema Plotly e layout
+│   ├── styles.py             # Injeção de CSS e hero
+│   └── components.py         # Componentes visuais do Streamlit
+└── tests/                    # Suíte de testes Pytest
     ├── conftest.py
     ├── test_etl.py
     ├── test_metrics.py
@@ -78,11 +78,11 @@ Interactive Streamlit dashboard for Mercado Livre sales analysis: revenue KPIs, 
     └── test_formatting.py
 ```
 
-Layering: `constants.py` (config), `etl.py` (data loading), `metrics.py` / `aggregations.py` / `filters.py` (business logic), `charts.py` / `styles.py` / `components.py` (UI), `app.py` (composition only).
+Camadas: `constants.py` (configuração), `etl.py` (carga de dados), `metrics.py` / `aggregations.py` / `filters.py` (regras de negócio), `charts.py` / `styles.py` / `components.py` (interface), `app.py` (apenas composição).
 
-Raw CSV headers stay in Portuguese (source domain data) and are referenced through English constants. Derived columns are English snake_case (`year_month`, `weekday`, `hour`, `transit_days`, ...). Code identifiers, comments and docstrings are 100% English; UI labels stay in Portuguese for Brazilian users.
+Os cabeçalhos do CSV original permanecem em português (dado de origem) e são referenciados por constantes em inglês. As colunas derivadas usam snake_case em inglês (`year_month`, `weekday`, `hour`, `transit_days`, ...). Identificadores, comentários e docstrings do código são 100% em inglês; os rótulos da interface permanecem em português para o usuário brasileiro.
 
-## Installation
+## Instalação
 
 ```bash
 python -m venv .venv
@@ -90,30 +90,30 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Dev setup:
+Ambiente de desenvolvimento:
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-## Usage
+## Como Usar
 
 ```bash
 streamlit run app.py
 ```
 
-Open `http://localhost:8501`. Data loads from `data/sales_2023.csv` via `DATA_PATH` in `sales_dashboard/constants.py`. Replace that file to analyse another export with the same schema.
+Acesse `http://localhost:8501`. Os dados são carregados de `data/sales_2023.csv` via `DATA_PATH` em `sales_dashboard/constants.py`. Substitua esse arquivo para analisar outra exportação com o mesmo esquema.
 
-## Configuration
+## Configuração
 
-- Theme: `.streamlit/config.toml` (primary `#2D3277`, light base).
-- Logo: `assets/logo.png` referenced by `LOGO_PATH`.
-- Ranking size: `TOP_N` in `constants.py`.
-- Lint: `pyproject.toml` (`line-length = 100`, single quotes enforced).
+- Tema: `.streamlit/config.toml` (cor principal `#2D3277`, base clara).
+- Logo: `assets/logo.png` referenciado por `LOGO_PATH`.
+- Tamanho dos rankings: `TOP_N` em `constants.py`.
+- Lint: `pyproject.toml` (`line-length = 100`, aspas simples obrigatórias).
 
-## Data Schema
+## Esquema dos Dados
 
-Expected CSV columns:
+Colunas esperadas no CSV:
 
 - `Data da venda`, `Data a caminho completa`, `Data de entrega completa`
 - `Unidades`, `Reclamação encerrada`, `N.º de venda`
@@ -121,38 +121,38 @@ Expected CSV columns:
 - `Receita por produtos (BRL)`, `Venda por publicidade` (`Sim`/`Não`)
 - `Estado`, `Título do anúncio`, `Variação`
 
-ETL coerces dates, nullable ints, absolute fees and derives `year_month`, `year`, `month`, `day`, `hour`, `minute`, `weekday`, `quarter`, `weekday_name`, `month_name` plus transit/delivery/total deltas.
+O ETL converte datas, inteiros anuláveis e taxas absolutas, além de derivar `year_month`, `year`, `month`, `day`, `hour`, `minute`, `weekday`, `quarter`, `weekday_name`, `month_name`, mais os deltas de trânsito/entrega/total.
 
-## Testing
+## Testes
 
 ```bash
 pytest -v
 coverage run -m pytest && coverage report
 ```
 
-Fixtures live in `tests/conftest.py` and use `tmp_path` (no absolute paths).
+As fixtures estão em `tests/conftest.py` e usam `tmp_path` (sem caminhos absolutos).
 
-## Linting
+## Lint
 
 ```bash
 ruff check .
 ruff format --check .
-ruff format .  # auto-fix when needed
+ruff format .  # correção automática quando necessário
 ```
 
-Config enforces single quotes, isort ordering and `line-length = 100`.
+A configuração exige aspas simples, ordenação isort e `line-length = 100`.
 
-## Contributing
+## Como Contribuir
 
-- Use English identifiers, single quotes, type hints and docstrings.
-- Keep modules small with single responsibility.
-- Add Pytest coverage for business logic before refactoring.
-- Run `pytest -v`, `ruff check .` and `ruff format --check .` before opening a PR.
+- Use identificadores em inglês, aspas simples, type hints e docstrings.
+- Mantenha módulos pequenos com responsabilidade única.
+- Adicione cobertura Pytest para a regra de negócio antes de refatorar.
+- Rode `pytest -v`, `ruff check .` e `ruff format --check .` antes de abrir um PR.
 
-## License
+## Licença
 
-MIT — see [LICENSE](LICENSE).
+MIT — veja [LICENSE](LICENSE).
 
-## Author
+## Autor
 
-Renato Perussi — June 2026. Refactored October 2026 to production-ready modular layout.
+Renato Perussi — junho de 2026. Refatorado em outubro de 2026 para um layout modular pronto para produção.
