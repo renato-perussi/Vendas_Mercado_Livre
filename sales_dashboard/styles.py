@@ -1,23 +1,16 @@
-"""Estilos globais, CSS injetado e hero section do dashboard."""
+"""Global styles, injected CSS and hero header."""
 
 import base64
+import html
 from pathlib import Path
 
 import streamlit as st
 
-from .constantes import CAMINHO_LOGO
+from .constants import LOGO_PATH
 
-
-def _imagem_para_data_uri(caminho: Path) -> str:
-    """Lê um arquivo de imagem e devolve um data URI base64."""
-    if not caminho.exists():
-        return ""
-    mime = "image/png" if caminho.suffix.lower() == ".png" else "image/jpeg"
-    return f"data:{mime};base64,{base64.b64encode(caminho.read_bytes()).decode()}"
-
-CSS_GLOBAL = """
+GLOBAL_CSS = """
 <style>
-/* ---------- Tipografia e cores globais ---------- */
+/* ---------- Global typography ---------- */
 html, body, [class*="css"] {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -66,14 +59,14 @@ html, body, [class*="css"] {
     font-weight: 400;
 }
 
-/* ---------- Títulos de seção ---------- */
+/* ---------- Section titles ---------- */
 h2, h3, .stMarkdown h2, .stMarkdown h3 {
     color: #2D3277 !important;
     font-weight: 700 !important;
     letter-spacing: -0.01em;
 }
 
-/* ---------- Cards de KPI (st.metric) ---------- */
+/* ---------- KPI cards ---------- */
 div[data-testid="stMetric"] {
     background: #FFFFFF;
     border: 1px solid #EAECEF;
@@ -126,7 +119,7 @@ section[data-testid="stSidebar"] h2 {
     display: block;
 }
 
-/* ---------- Divisores ---------- */
+/* ---------- Dividers ---------- */
 hr {
     border: none;
     border-top: 1px solid #EAECEF;
@@ -141,32 +134,42 @@ hr {
 """
 
 
-def injetar_css() -> None:
-    """Aplica os estilos globais do dashboard."""
-    st.markdown(CSS_GLOBAL, unsafe_allow_html=True)
+def _image_to_data_uri(path: Path) -> str:
+    """Read an image file and return a base64 data URI."""
+    if not path.exists():
+        return ''
+    mime = 'image/png' if path.suffix.lower() == '.png' else 'image/jpeg'
+    encoded = base64.b64encode(path.read_bytes()).decode()
+    return f'data:{mime};base64,{encoded}'
 
 
-def exibir_logo_sidebar(largura: int = 180) -> None:
-    """Renderiza o logo do Mercado Livre no topo do sidebar."""
-    logo_src = _imagem_para_data_uri(CAMINHO_LOGO)
+def inject_css() -> None:
+    """Apply global dashboard styles."""
+    st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
+
+
+def render_sidebar_logo(width: int = 180) -> None:
+    """Render the Mercado Livre logo at the top of the sidebar."""
+    logo_src = _image_to_data_uri(LOGO_PATH)
     st.markdown(
         f"""
         <div class="ml-sidebar-logo">
-            <img src="{logo_src}" width="{largura}" alt="Mercado Livre">
+            <img src="{logo_src}" width="{width}" alt="Mercado Livre">
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def exibir_hero(subtitulo: str = "Análise de vendas e desempenho comercial") -> None:
-    """Renderiza o cabeçalho com título e subtítulo."""
+def render_hero(subtitle: str = 'Análise de vendas e desempenho comercial') -> None:
+    """Render the header with title and subtitle."""
+    safe_subtitle = html.escape(subtitle)
     st.markdown(
         f"""
         <div class="ml-hero">
             <div class="ml-hero__text">
                 <h1>Dashboard de Vendas</h1>
-                <p>{subtitulo}</p>
+                <p>{safe_subtitle}</p>
             </div>
         </div>
         """,

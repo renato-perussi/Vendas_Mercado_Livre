@@ -1,17 +1,17 @@
 [theme]
 
-# Cor de destaque (botões, links, controles interativos)
+# Accent color (buttons, links, interactive controls)
 base = "light"
 primaryColor = "#2D3277"
 
-# Fundos
+# Backgrounds
 backgroundColor = "#FAFAFB"
 secondaryBackgroundColor = "#FFFFFF"
 
-# Texto
+# Text
 textColor = "#1A1B2E"
 font = "sans serif"
 
 [server]
-# Esconde o menu lateral nativo do Streamlit (look mais limpo)
+# Hide native Streamlit sidebar nav (cleaner look)
 # hideSidebarNav = false
